@@ -1,5 +1,5 @@
 # MC-BERT4HATE
-Repository for the "MC-BERT4HATE: Hate Speech Detection using Multi-channel BERT for Different Languages and Translations"
+Repository for the paper "MC-BERT4HATE: Hate Speech Detection using Multi-channel BERT for Different Languages and Translations"
 
 ```
 @inproceedings{inproceedings,
