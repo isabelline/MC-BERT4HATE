@@ -239,43 +239,43 @@ def write_features(examples, output_file, tokenizers):
 
 
 def _truncate_seq_pair(tokens_a, tokens_b, max_length):
-while True:
-  total_length = len(tokens_a) + len(tokens_b)
-  if total_length <= max_length:
-    break
-  if len(tokens_a) > len(tokens_b):
-    tokens_a.pop()
-  else:
-    tokens_b.pop()
+  while True:
+    total_length = len(tokens_a) + len(tokens_b)
+    if total_length <= max_length:
+      break
+    if len(tokens_a) > len(tokens_b):
+      tokens_a.pop()
+    else:
+      tokens_b.pop()
 
 def create_model(bert_config, is_training, input_ids, input_mask, segment_ids,
          labels, num_labels, use_one_hot_embeddings):
-"""Creates a classification model."""
-model = modeling.BertModel(config=bert_config, is_training=is_training, input_ids=input_ids, input_mask=input_mask, token_type_ids=segment_ids, use_one_hot_embeddings=use_one_hot_embeddings)
+  """Creates a classification model."""
+  model = modeling.BertModel(config=bert_config, is_training=is_training, input_ids=input_ids, input_mask=input_mask, token_type_ids=segment_ids, use_one_hot_embeddings=use_one_hot_embeddings)
 
 
-output_layer = model.get_pooled_output()
+  output_layer = model.get_pooled_output()
 
-hidden_size = output_layer.shape[-1].value
+  hidden_size = output_layer.shape[-1].value
 
-output_weights = tf.get_variable("output_weights", [num_labels, hidden_size], initializer=tf.truncated_normal_initializer(stddev=0.02))
+  output_weights = tf.get_variable("output_weights", [num_labels, hidden_size], initializer=tf.truncated_normal_initializer(stddev=0.02))
 
-output_bias = tf.get_variable("output_bias", [num_labels], initializer=tf.zeros_initializer())
+  output_bias = tf.get_variable("output_bias", [num_labels], initializer=tf.zeros_initializer())
 
-with tf.variable_scope("loss"):
-  if is_training:
-    # I.e., 0.1 dropout
-    output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
+  with tf.variable_scope("loss"):
+    if is_training:
+      # I.e., 0.1 dropout
+      output_layer = tf.nn.dropout(output_layer, keep_prob=0.9)
 
-  logits = tf.matmul(output_layer, output_weights, transpose_b=True)
-  logits = tf.nn.bias_add(logits, output_bias)
-  probabilities = tf.nn.softmax(logits, axis=-1)
-  log_probs = tf.nn.log_softmax(logits, axis=-1)
+    logits = tf.matmul(output_layer, output_weights, transpose_b=True)
+    logits = tf.nn.bias_add(logits, output_bias)
+    probabilities = tf.nn.softmax(logits, axis=-1)
+    log_probs = tf.nn.log_softmax(logits, axis=-1)
 
-  one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
+    one_hot_labels = tf.one_hot(labels, depth=num_labels, dtype=tf.float32)
 
-  per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
-  loss = tf.reduce_mean(per_example_loss)
+    per_example_loss = -tf.reduce_sum(one_hot_labels * log_probs, axis=-1)
+    loss = tf.reduce_mean(per_example_loss)
 
 
 
@@ -284,19 +284,19 @@ with tf.variable_scope("loss"):
 
 
 def file_based_input_fn_builder(input_file, seq_length, is_training, drop_remainder):
-name_to_features = {
-    "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
-    "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
-    "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
-    "input_ids_en": tf.FixedLenFeature([seq_length], tf.int64),
-    "input_mask_en": tf.FixedLenFeature([seq_length], tf.int64),
-    "segment_ids_en": tf.FixedLenFeature([seq_length], tf.int64),
-    "input_ids_ch": tf.FixedLenFeature([seq_length], tf.int64),
-    "input_mask_ch": tf.FixedLenFeature([seq_length], tf.int64),
-    "segment_ids_ch": tf.FixedLenFeature([seq_length], tf.int64),
-    "label_id": tf.FixedLenFeature([], tf.int64),
-    "is_real_example": tf.FixedLenFeature([], tf.int64),
-}
+  name_to_features = {
+      "input_ids": tf.FixedLenFeature([seq_length], tf.int64),
+      "input_mask": tf.FixedLenFeature([seq_length], tf.int64),
+      "segment_ids": tf.FixedLenFeature([seq_length], tf.int64),
+      "input_ids_en": tf.FixedLenFeature([seq_length], tf.int64),
+      "input_mask_en": tf.FixedLenFeature([seq_length], tf.int64),
+      "segment_ids_en": tf.FixedLenFeature([seq_length], tf.int64),
+      "input_ids_ch": tf.FixedLenFeature([seq_length], tf.int64),
+      "input_mask_ch": tf.FixedLenFeature([seq_length], tf.int64),
+      "segment_ids_ch": tf.FixedLenFeature([seq_length], tf.int64),
+      "label_id": tf.FixedLenFeature([], tf.int64),
+      "is_real_example": tf.FixedLenFeature([], tf.int64),
+  }
 
 def _decode_record(record, name_to_features):
   """Decodes a record to a TensorFlow example."""
@@ -335,77 +335,77 @@ return input_fn
 
 
 def model_fn_builder(bert_configs, num_labels, checkpoints, learning_rate, num_train_steps, num_warmup_steps, use_tpu, use_one_hot_embeddings):
-def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
+  def model_fn(features, labels, mode, params):  # pylint: disable=unused-argument
 
-  tf.logging.info("*** Features ***")
-  for name in sorted(features.keys()):
-    tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
+    tf.logging.info("*** Features ***")
+    for name in sorted(features.keys()):
+      tf.logging.info("  name = %s, shape = %s" % (name, features[name].shape))
 
-  input_ids = features["input_ids"]
-  input_mask = features["input_mask"]
-  segment_ids = features["segment_ids"]
-  label_ids = features["label_id"]
-  is_real_example = None
-  if "is_real_example" in features:
-    is_real_example = tf.cast(features["is_real_example"], dtype=tf.float32)
-  else:
-    is_real_example = tf.ones(tf.shape(label_ids), dtype=tf.float32)
+    input_ids = features["input_ids"]
+    input_mask = features["input_mask"]
+    segment_ids = features["segment_ids"]
+    label_ids = features["label_id"]
+    is_real_example = None
+    if "is_real_example" in features:
+      is_real_example = tf.cast(features["is_real_example"], dtype=tf.float32)
+    else:
+      is_real_example = tf.ones(tf.shape(label_ids), dtype=tf.float32)
 
-  is_training = (mode == tf.estimator.ModeKeys.TRAIN)
+    is_training = (mode == tf.estimator.ModeKeys.TRAIN)
 
-  with tf.variable_scope("multi"):
-    (total_loss, per_example_loss, logits, probabilities) = create_model(bert_configs[0], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
-  with tf.variable_scope("english"):
-    (total_loss_en, per_example_loss_en, logits_en, probabilities_en) = create_model(bert_configs[1], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
-  with tf.variable_scope("chinese"):
-    (total_loss_ch, per_example_loss_ch, logits_ch, probabilities_ch) = create_model(bert_configs[2], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
+    with tf.variable_scope("multi"):
+      (total_loss, per_example_loss, logits, probabilities) = create_model(bert_configs[0], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
+    with tf.variable_scope("english"):
+      (total_loss_en, per_example_loss_en, logits_en, probabilities_en) = create_model(bert_configs[1], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
+    with tf.variable_scope("chinese"):
+      (total_loss_ch, per_example_loss_ch, logits_ch, probabilities_ch) = create_model(bert_configs[2], is_training, input_ids, input_mask, segment_ids, label_ids, num_labels, use_one_hot_embeddings)
 
-  tvars = tf.trainable_variables()
-  initialized_variable_names = {}
-  scaffold_fn = None
-  scopes = ['multi', 'english', 'chinese']
-  for i, init_checkpoint in enumerate(checkpoints):
-    if init_checkpoint:
-      (assignment_map, initialized_variable_names_part) = modeling.get_assignment_map_from_checkpoint_with_scope(tvars, init_checkpoint, scopes[i])
-      if use_tpu:
+    tvars = tf.trainable_variables()
+    initialized_variable_names = {}
+    scaffold_fn = None
+    scopes = ['multi', 'english', 'chinese']
+    for i, init_checkpoint in enumerate(checkpoints):
+      if init_checkpoint:
+        (assignment_map, initialized_variable_names_part) = modeling.get_assignment_map_from_checkpoint_with_scope(tvars, init_checkpoint, scopes[i])
+        if use_tpu:
 
-      def tpu_scaffold():
+        def tpu_scaffold():
+          tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
+          return tf.train.Scaffold()
+
+        scaffold_fn = tpu_scaffold
+        else:
         tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-        return tf.train.Scaffold()
+      initialized_variable_names = {**initialized_variable_names, **initialized_variable_names_part}
 
-      scaffold_fn = tpu_scaffold
-      else:
-      tf.train.init_from_checkpoint(init_checkpoint, assignment_map)
-    initialized_variable_names = {**initialized_variable_names, **initialized_variable_names_part}
+    tf.logging.info("**** Trainable Variables ****")
+    for var in tvars:
+      init_string = ""
+      if var.name in initialized_variable_names:
+      init_string = ", *INIT_FROM_CKPT*"
+      tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape, init_string)
 
-  tf.logging.info("**** Trainable Variables ****")
-  for var in tvars:
-    init_string = ""
-    if var.name in initialized_variable_names:
-    init_string = ", *INIT_FROM_CKPT*"
-    tf.logging.info("  name = %s, shape = %s%s", var.name, var.shape, init_string)
+    output_spec = None
+    if mode == tf.estimator.ModeKeys.TRAIN:
 
-  output_spec = None
-  if mode == tf.estimator.ModeKeys.TRAIN:
+      train_op = optimization.create_optimizer(total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
 
-    train_op = optimization.create_optimizer(total_loss, learning_rate, num_train_steps, num_warmup_steps, use_tpu)
+      output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=total_loss, train_op=train_op, scaffold_fn=scaffold_fn)
+    elif mode == tf.estimator.ModeKeys.EVAL:
 
-    output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=total_loss, train_op=train_op, scaffold_fn=scaffold_fn)
-  elif mode == tf.estimator.ModeKeys.EVAL:
+      def metric_fn(per_example_loss, label_ids, logits, is_real_example):
+      predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
+      accuracy = tf.metrics.accuracy(labels=label_ids, predictions=predictions, weights=is_real_example)
+      loss = tf.metrics.mean(values=per_example_loss, weights=is_real_example)
+      return {"eval_accuracy": accuracy, "eval_loss": loss,}
 
-    def metric_fn(per_example_loss, label_ids, logits, is_real_example):
-    predictions = tf.argmax(logits, axis=-1, output_type=tf.int32)
-    accuracy = tf.metrics.accuracy(labels=label_ids, predictions=predictions, weights=is_real_example)
-    loss = tf.metrics.mean(values=per_example_loss, weights=is_real_example)
-    return {"eval_accuracy": accuracy, "eval_loss": loss,}
+      eval_metrics = (metric_fn, [per_example_loss, label_ids, logits, is_real_example])
+      output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=total_loss, eval_metrics=eval_metrics, scaffold_fn=scaffold_fn)
+    else:
+      output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, predictions={"probabilities": probabilities}, scaffold_fn=scaffold_fn)
+    return output_spec
 
-    eval_metrics = (metric_fn, [per_example_loss, label_ids, logits, is_real_example])
-    output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, loss=total_loss, eval_metrics=eval_metrics, scaffold_fn=scaffold_fn)
-  else:
-    output_spec = tf.contrib.tpu.TPUEstimatorSpec(mode=mode, predictions={"probabilities": probabilities}, scaffold_fn=scaffold_fn)
-  return output_spec
-
-return model_fn
+  return model_fn
 
 
 
@@ -481,13 +481,13 @@ def main(_):
     
 
 if __name__ == "__main__":
-flags.mark_flag_as_required("data_dir")
-flags.mark_flag_as_required("vocab_file")
-flags.mark_flag_as_required("vocab_file_en")
-flags.mark_flag_as_required("vocab_file_chi")
-flags.mark_flag_as_required("bert_config_file")
-flags.mark_flag_as_required("bert_config_file_en")
-flags.mark_flag_as_required("bert_config_file_ch")
-flags.mark_flag_as_required("translation_key")
-flags.mark_flag_as_required("output_dir")
-tf.app.run()
+  flags.mark_flag_as_required("data_dir")
+  flags.mark_flag_as_required("vocab_file")
+  flags.mark_flag_as_required("vocab_file_en")
+  flags.mark_flag_as_required("vocab_file_chi")
+  flags.mark_flag_as_required("bert_config_file")
+  flags.mark_flag_as_required("bert_config_file_en")
+  flags.mark_flag_as_required("bert_config_file_ch")
+  flags.mark_flag_as_required("translation_key")
+  flags.mark_flag_as_required("output_dir")
+  tf.app.run()
